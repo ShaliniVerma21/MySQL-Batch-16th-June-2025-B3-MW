@@ -1,9 +1,16 @@
 # MySQL-Batch-16th-June-2025
 ![image](https://github.com/user-attachments/assets/d77efc0e-7cbe-4a95-b3bf-d88b882440da)
 
-📘 mysql-classes-work
+# 📘 mysql-classes-work
+## 📘 mysql-classes-work
+### 📘 mysql-classes-work
+#### 📘 mysql-classes-work
+##### 📘 mysql-classes-work
+
+--- 
 This repository contains a comprehensive collection of my learning journey and practical implementations during MySQL classes. It includes all the structured and self-driven work I’ve completed to strengthen my database skills through real-time exercises and scenarios.
 
+---
 📌 What’s Inside:
 ✅ Practice Work:
 Hands-on queries covering CRUD operations, filtering, sorting, aggregation, joins, subqueries, and more.
