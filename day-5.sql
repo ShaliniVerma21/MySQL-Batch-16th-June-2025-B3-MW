@@ -290,3 +290,116 @@ INSERT INTO Salary (SalaryID, FacultyID, SalaryAmount, PaymentDate, PaymentMetho
 -- Faculty 202
 
 select * from salary;
+
+-- --------------------------- Delete and Update Cascading ------------------------------
+
+-- Perform Delete and Update Operations
+-- Delete a department (e.g., DepartmentID = 1)
+DELETE FROM Departments WHERE DepartmentID = 5;
+
+-- Check the Faculty and Students tables to see the effects
+SELECT * FROM Faculty;  -- DepartmentID for faculty in department 1 should be NULL
+SELECT * FROM Students;  -- DepartmentID for students in department 1 should be NULL
+
+
+-- Delete a faculty member (e.g., FacultyID = 1)
+DELETE FROM Faculty WHERE FacultyID = 1;
+
+-- Check the Salary table to see if the salary record for FacultyID = 1 is deleted
+SELECT * FROM Salary;  -- Salary record for FacultyID 1 should be gone
+
+-- Check the Marks table to see the effects
+SELECT * FROM Marks;  -- FacultyID for marks graded by FacultyID 1 should be NULL
+
+-- Update a department ID (e.g., change DepartmentID from 2 to 20)
+UPDATE Departments SET DepartmentID = 202 WHERE DepartmentID = 2;
+
+-- Check the Faculty and Students tables to see the effects
+SELECT * FROM Faculty;  -- DepartmentID for faculty who were in department 2 should now be 20
+SELECT * FROM Students;  -- DepartmentID for students who were in department 2 should now be 20
+
+-- Update a faculty ID (e.g., change FacultyID from 3 to 30)
+UPDATE Faculty SET FacultyID = 30 WHERE FacultyID = 3;
+
+-- Check the Marks and Salary tables to see the effects
+SELECT * FROM Marks;  -- FacultyID for marks graded by FacultyID 3 should now be 30
+SELECT * FROM Salary;  -- FacultyID in Salary table for FacultyID 3 should now be 30
+
+
+/*
+Naming Conventions in case of Add & Drop Constraints:
+
+If you are creating constraints, it's a good practice to use a consistent naming convention. 
+This can help you easily identify constraints later. A common convention is to use the format:
+
+For CHECK constraints: chk_<table>_<column>
+For UNIQUE constraints: unique_<table>_<column>
+For FOREIGN KEY constraints: fk_<table>_<referenced_table>
+
+In MySQL, you can add and drop constraints on existing tables using the ALTER TABLE statement.
+
+Adding Constraints -->
+
+1. Adding a Foreign Key Constraint: 
+You can add a foreign key constraint to an existing table to enforce referential integrity.
+
+2. Adding a Unique Constraint: 
+You can add a unique constraint to ensure that all values in a column are different.
+
+3. Adding a Check Constraint: 
+You can add a check constraint to enforce a condition on the values in a column.
+
+
+Dropping Constraints
+
+1. Dropping a Foreign Key Constraint: 
+You can drop a foreign key constraint if you no longer need it.
+
+2. Dropping a Unique Constraint: 
+You can drop a unique constraint if you want to allow duplicate values in a column.
+
+3. Dropping a Check Constraint: 
+You can drop a check constraint if you want to remove the condition on a column.
+
+
+Example of Adding Constraints with Naming Conventions
+
+ALTER TABLE Flights 
+ADD CONSTRAINT chk_flight_duration CHECK (Flight_Duration > 0);
+*/
+
+
+-- 1. Adding a Foreign Key Constraint to the Marks table
+ALTER TABLE Marks
+ADD CONSTRAINT fk_student
+FOREIGN KEY (StudentID) REFERENCES Students(StudentID)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+-- 2. Adding a Unique Constraint to the Faculty table on Email
+ALTER TABLE Faculty
+ADD CONSTRAINT uq_faculty_email UNIQUE (Email);
+
+-- 3. Adding a Check Constraint to the Salary table to ensure SalaryAmount is positive
+ALTER TABLE Salary
+ADD CONSTRAINT chk_salary_amount CHECK (SalaryAmount > 0);
+
+-- 4. Dropping a Foreign Key Constraint from the Marks table
+ALTER TABLE Marks
+DROP FOREIGN KEY fk_student;
+
+-- 5. Dropping a Unique Constraint from the Faculty table
+ALTER TABLE Faculty
+DROP INDEX uq_faculty_email;
+
+-- 6. Dropping a Check Constraint from the Salary table
+ALTER TABLE Salary
+DROP CHECK chk_salary_amount;
+
+-- 7. Adding a new Check Constraint to the Students table to ensure age is valid
+ALTER TABLE Students
+ADD CONSTRAINT chk_age CHECK (YEAR(CURDATE()) - YEAR(DateOfBirth) >= 0);
+
+-- 8. Dropping the Check Constraint from the Students table
+ALTER TABLE Students
+DROP CHECK chk_age;
