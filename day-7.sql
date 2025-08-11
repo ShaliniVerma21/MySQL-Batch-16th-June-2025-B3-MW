@@ -891,7 +891,7 @@ SELECT *
 FROM Flights 
 WHERE Arrival_Airport LIKE 'K%';
 
-
+-- Home till here.
 
 -- 15. EXISTS Clause
 /*
