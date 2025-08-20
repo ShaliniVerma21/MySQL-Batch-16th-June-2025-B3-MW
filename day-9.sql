@@ -194,6 +194,137 @@ DELIMITER ;
 SELECT SquareNumber(4) AS square;  -- Returns 16.00
 
 
+-- pattern & Regular Expressions
+/*
+Regular expressions (regex) in MySQL are used to search for patterns in strings. 
+MySQL provides the REGEXP operator, which allows you to perform pattern matching using regular 
+expressions. This can be particularly useful for validating input, searching for specific formats, 
+or filtering data based on patterns.
+*/
+
+CREATE TABLE IF NOT EXISTS employees (
+    employee_id DECIMAL(6,0) NOT NULL PRIMARY KEY,  
+    -- Unique identifier for each employee
+    first_name VARCHAR(20) NOT NULL,                 
+    -- Employee's first name
+    last_name VARCHAR(25) NOT NULL,                  
+    -- Employee's last name
+    email VARCHAR(50) NOT NULL,                      
+    -- Employee's email address
+    phone_number VARCHAR(20) DEFAULT NULL,           
+    -- Employee's phone number (optional)
+    password varchar(20) default null,
+    hire_date DATE NOT NULL,                          
+    -- Date when the employee was hired
+    job_id VARCHAR(10) NOT NULL,                     
+    -- Identifier for the employee's job
+    salary DECIMAL(8,2) DEFAULT NULL,                
+    -- Employee's salary (optional)
+    commission_pct DECIMAL(2,2) DEFAULT NULL,       
+    -- Commission percentage (optional)
+    manager_id DECIMAL(6,0) DEFAULT NULL,            
+    -- ID of the employee's manager (optional)
+    department_id DECIMAL(4,0) DEFAULT NULL,         
+    -- ID of the department (optional)
+    
+    -- Constraints for various fields
+    CONSTRAINT chk_email CHECK (email REGEXP '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$'),  
+    -- Valid email format: 
+    -- ^                : Start of the string
+    -- [a-zA-Z0-9._%+-]+: One or more alphanumeric characters, dots, underscores, percent signs, pluses, or hyphens
+    -- @                : Must contain an "@" symbol
+    -- [a-zA-Z0-9.-]+   : One or more alphanumeric characters, dots, or hyphens (domain name)
+    -- \\.[a-zA-Z]{2,}  : A dot followed by at least two alphabetic characters (top-level domain)
+    -- $                : End of the string
+
+    CONSTRAINT chk_phone_number CHECK 
+    (phone_number REGEXP '^(\\+\\d{1,3}\\s?)?\\(?\\d{1,4}\\)?[-\\s]?\\d{1,4}[-\\s]?\\d{1,4}$'),  
+    -- Valid phone number format:
+    -- ^                     : Start of the string
+    -- (\\+\\d{1,3}\\s?)?    : Optional country code starting with "+" followed by 1 to 3 digits and 
+    -- an optional space
+    -- \\(?\\d{1,4}\\)?      : Optional area code in parentheses, consisting of 1 to 4 digits
+    -- [-\\s]?               : Optional separator (dash or space)
+    -- \\d{1,4}             : 1 to 4 digits (first part of the phone number)
+    -- [-\\s]?               : Optional separator (dash or space)
+    -- \\d{1,4}             : 1 to 4 digits (second part of the phone number)
+    -- $                     : End of the string
+
+    CONSTRAINT chk_password CHECK (password 
+    REGEXP '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$'),  
+    -- Valid password format (if a password field is added):
+    -- ^                     : Start of the string
+    -- (?=.*[a-z])          : At least one lowercase letter
+    -- (?=.*[A-Z])          : At least one uppercase letter
+    -- (?=.*[0-9])          : At least one digit
+    -- (?=.*[!@#$%^&*])     : At least one special character from the set !@#$%^&*
+    -- [A-Za-z0-9!@#$%^&*]{8,} : At least 8 characters that can be letters, digits, or special characters
+    -- $                     : End of the string
+
+    CONSTRAINT chk_first_name CHECK (first_name REGEXP '^[A-Z][a-zA-Z]{1,19}$'),  
+    -- First name must start with uppercase and be 2-20 characters long:
+    -- ^                     : Start of the string
+    -- [A-Z]                : First character must be an uppercase letter
+    -- [a-zA-Z]{1,19}       : Followed by 1 to 19 letters (uppercase or lowercase)
+    -- $                     : End of the string
+
+    CONSTRAINT chk_last_name CHECK (last_name REGEXP '^[A-Z][a-z ]{1,24}$'),    
+    -- Last name must start with uppercase and be 2-25 characters long:
+    -- ^                     : Start of the string
+    -- [A-Z]                : First character must be an uppercase letter
+    -- [a-z]{1,24}          : Followed by 1 to 24 lowercase letters
+    -- $                     : End of the string
+
+    CONSTRAINT chk_job_id CHECK (job_id REGEXP '^[A-Z]{2,5}-\\d{1,4}$'),          
+    -- Job ID format: 2-5 uppercase letters followed by a hyphen and 1-4 digits:
+    -- ^                     : Start of the string
+    -- [A-Z]{2,5}           : 2 to 5 uppercase letters
+    -- -                    : A hyphen
+    -- \\d{1,4}             : 1 to 4 digits
+    -- $                     : End of the string
+
+    CONSTRAINT chk_salary CHECK (salary REGEXP '^(\\d{1,8}(\\.\\d{2})?)$'),      
+    -- Salary must be a number with up to 8 digits and optional 2 decimal places:
+    -- ^                     : Start of the string
+    -- \\d{1,8}             : 1 to 8 digits
+    -- (\\.\\d{2})?         : Optional decimal part with 2 digits
+    -- $                     : End of the string
+
+    CONSTRAINT chk_commission CHECK (commission_pct REGEXP '^(0|0\\.\\d{1,2}|[1-9]\\d*(\\.\\d{1,2})?)$'),  
+    -- Commission must be between 0 and 100 with up to 2 decimal places:
+    -- ^                     : Start of the string
+    -- (0|0\\.\\d{1,2}|[1-9]\\d*(\\.\\d{1,2})?) : 0, or 0 followed by 1 to 2 decimal places, or 1 to 9 
+    -- followed by any number of digits and optional 1 to 2 decimal places
+    -- $                     : End of the string
+
+    CONSTRAINT chk_department_id CHECK (department_id REGEXP '^[1-9][0-9]{0,3}$') 
+    -- Department ID must be a number between 1 and 9999:
+    -- ^                     : Start of the string
+    -- [1-9]                : First digit must be between 1 and 9
+    -- [0-9]{0,3}           : Followed by 0 to 3 digits
+    -- $                     : End of the string
+);
+
+-- Insert 5 records into the employees table
+INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, password, 
+hire_date, job_id, salary, commission_pct, manager_id, department_id)
+VALUES
+    (1, 'John', 'Doe', 'john.doe@example.com', '123-456-7890', 'P@ssw0rd', '2020-01-01',
+    'SALE-1234', 50000.00, 0.10, 2, 10),
+    (2, 'Jane', 'Smith', 'jane.smith@example.com', '987-654-3210', 'P@ssw0rd', '2020-02-01', 
+    'DEV-5678', 60000.00, 0.15, 1, 20),
+    (3, 'Bob', 'Johnson', 'bob.johnson@example.com', '555-123-4567', 'P@ssw0rd', '2020-03-01', 
+    'MARK-9012', 70000.00, 0.20, 3, 30),
+    (4, 'Alice', 'Williams', 'alice.williams@example.com', '789-012-3456', 'P@ssw0rd', '2020-04-01', 
+    'FIN-3456', 80000.00, 0.25, 4, 40),
+    (5, 'Mike', 'Davis', 'mike.davis@example.com', '321-987-6543', 'P@ssw0rd', '2020-05-01', 
+    'HR-5678', 90000.00, 0.30, 5, 50);
+    
+    select * from employees;
+
+
+
+
 -- This function checks if a password is strong based on certain criteria.
 DELIMITER //
 
