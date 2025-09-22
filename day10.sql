@@ -228,6 +228,158 @@ SELECT student.id, student_name, course_name
 FROM student 
 CROSS JOIN course;
 
+/*
+============================================================
+SELF JOIN in SQL
+============================================================
+1. A SELF JOIN is a regular join but the table joins with itself.
+2. We use table aliases to differentiate between two references.
+3. It is mostly used to compare rows in the same table 
+   OR to build hierarchy/relationship inside the same table.
+4. Syntax:
+      SELECT a.col, b.col
+      FROM table a
+      JOIN table b
+      ON a.common_col = b.common_col;
+============================================================
+*/
+
+/* =========================================================
+   Example 1: Employees and Their Managers (Same Table)
+   - Find each employee with their manager name
+   ========================================================= */
+CREATE TABLE Employees (
+    EmpID INT,
+    EmpName VARCHAR(50),
+    ManagerID INT
+);
+
+INSERT INTO Employees VALUES
+(1, 'Alice', NULL),
+(2, 'Bob', 1),
+(3, 'Charlie', 1),
+(4, 'David', 2),
+(5, 'Eva', 2);
+
+-- Self join to match employee with their manager
+SELECT e.EmpName AS Employee, m.EmpName AS Manager
+FROM Employees e
+LEFT JOIN Employees m ON e.ManagerID = m.EmpID;
+
+
+/* =========================================================
+   Example 2: Students Having Same Mentor (Same Table)
+   ========================================================= */
+CREATE TABLE Students (
+    StudentID INT,
+    StudentName VARCHAR(50),
+    MentorID INT
+);
+
+INSERT INTO Students VALUES
+(1, 'Ravi', 101),
+(2, 'Anita', 101),
+(3, 'Karan', 102),
+(4, 'Meena', 102),
+(5, 'Sonia', 103);
+
+-- Self join to find pairs of students with same mentor
+SELECT s1.StudentName AS Student1, s2.StudentName AS Student2, s1.MentorID
+FROM Students s1
+JOIN Students s2
+  ON s1.MentorID = s2.MentorID
+ AND s1.StudentID < s2.StudentID;
+
+
+/* =========================================================
+   Example 3: Product Price Comparison (Same Table)
+   ========================================================= */
+CREATE TABLE Products (
+    ProductID INT,
+    ProductName VARCHAR(50),
+    Price DECIMAL(10,2)
+);
+
+INSERT INTO Products VALUES
+(1, 'Laptop', 50000),
+(2, 'Mobile', 20000),
+(3, 'Tablet', 25000),
+(4, 'Monitor', 15000);
+
+-- Self join to compare product prices
+SELECT p1.ProductName, p2.ProductName, 
+       (p1.Price - p2.Price) AS Price_Difference
+FROM Products p1
+JOIN Products p2
+  ON p1.ProductID < p2.ProductID;
+
+
+/* =========================================================
+   Example 4: Matching Customers Across Different Tables
+   (Self join logic applied across two similar tables)
+   ========================================================= */
+CREATE TABLE Customers2024 (
+    CustID INT,
+    CustName VARCHAR(50),
+    City VARCHAR(50)
+);
+
+CREATE TABLE Customers2025 (
+    CustID INT,
+    CustName VARCHAR(50),
+    City VARCHAR(50)
+);
+
+INSERT INTO Customers2024 VALUES
+(1, 'Rohit', 'Delhi'),
+(2, 'Priya', 'Mumbai');
+
+INSERT INTO Customers2025 VALUES
+(1, 'Rohit', 'Delhi'),
+(3, 'Arjun', 'Bangalore');
+
+-- Self-like join across different tables (same structure)
+SELECT c24.CustName, c24.City, c25.City AS City_2025
+FROM Customers2024 c24
+JOIN Customers2025 c25
+  ON c24.CustID = c25.CustID;
+
+
+/* =========================================================
+   Example 5: Finding Consecutive Attendance Dates (Same Table)
+   ========================================================= */
+CREATE TABLE Attendance (
+    EmpID INT,
+    AttDate DATE
+);
+
+INSERT INTO Attendance VALUES
+(1, '2025-09-01'),
+(1, '2025-09-02'),
+(1, '2025-09-04'),
+(2, '2025-09-01'),
+(2, '2025-09-03');
+
+-- Find employees who attended consecutive days
+SELECT a1.EmpID, a1.AttDate AS CurrentDay, a2.AttDate AS NextDay
+FROM Attendance a1
+JOIN Attendance a2
+  ON a1.EmpID = a2.EmpID
+ AND DATEDIFF(a2.AttDate, a1.AttDate) = 1;
+
+
+/*
+============================================================
+KEY TAKEAWAYS
+============================================================
+✔ SELF JOIN = Table joins with itself
+✔ Used with table aliases
+✔ Useful for hierarchy, comparisons, relationships
+✔ Can be applied within same or across similar tables
+============================================================
+*/
+
+
 -- Table-1
 -- Create the faculty table to store information about faculty members
 CREATE TABLE faculty (
